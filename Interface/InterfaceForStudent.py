@@ -12,6 +12,32 @@ COLOR_SIZE_DEFAULT = [1280, 720]
 LASER_POWER_DEFAULT = 80.0
 RECEIVER_GAIN_DEFAULT = 9.0
 
+class JPG_PNG_converter():
+    def __init__(self):
+        self.main_directory = os.getcwd()
+        self.image_dir = '\\output\\images'
+        self.video_dir = '\\output\\video'
+        self.default_dir = '\\output\\default'
+
+    def imsave(self, image, name, dir = None):
+        if dir is None:
+            path_dir = self.default_dir
+        else:
+            path_dir = dir
+
+        path = "".join((self.main_directory, path_dir))
+        os.chdir(path)
+        cv2.imwrite("".join((name, ".jpg")), image)
+        # change beck to main dir
+        os.chdir(self.main_directory)
+
+    def imload(self, image_full_path):
+        return cv2.imread(image_full_path)
+
+    def get_file_location(self, file):
+        return os.path.dirname(os.path.realpath(file))
+
+
 
 class L515_basic_interface():
     def __init__(self, image_size_d = DEPTH_SIZE_DEFAULT, image_size_c = COLOR_SIZE_DEFAULT,
@@ -75,10 +101,23 @@ class L515_basic_interface():
         return color_image, depth_image
 
     # TODO finish save picture
-    def savePicture(self):
-        color, depth = self.takePicture()
-        date = datetime.now()
-        time = date.strftime("%x-%X")
+    def savePicture(self, color_np=None, depth_np=None):
+        if color_np is None or depth_np is None:
+            color, depth = self.takePicture()
+        else:
+            color, depth = color_np, depth_np
+
+        # change depth to image size
+        depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth, alpha=0.03), cv2.COLORMAP_JET)
+
+        time = get_file_time()
+        color_file_name = "".join(("color_", time))
+        depth_file_name = "".join(("depth_", time))
+
+        converter = JPG_PNG_converter()
+
+        converter.imsave(color, color_file_name, "".join((converter.image_dir, "\\color") ))
+        converter.imsave(depth_colormap, depth_file_name, "".join((converter.image_dir, "\\depth") ))
 
 
     # will return list that contain lists numpy matrixs. every one of them count as video
@@ -91,7 +130,7 @@ class L515_basic_interface():
         try:
             while True:
                 frame = self.pipeline.wait_for_frames()
-                color_image, depth_image = self.takePiction(frame) # when the function fail, it will return None, so this line will fail to
+                color_image, depth_image = self.takePicture(frame) # when the function fail, it will return None, so this line will fail to
 
                 ''' record '''
                 if record_bool:
@@ -150,20 +189,11 @@ class L515_basic_interface():
         except:
             print("--- invalid params ---")
 
-    # TODO save images (colora and depth) with date name
+    # TODO save images (color and depth) with date name
 
-class JPG_PNG_converter():
-    def __init__(self):
-        self.main_directory = '/root'
-        self.image_dir = '/root/output/images'
-        self.video_dir = '/root/output/video'
-
-    def imsave(self, image, name):
-        os.chdir(self.image_dir)
-        cv2.imwrite(name, image)
-
-    def imload(self, image_path):
-        return cv2.imread(image_path)
-
-    def get_file_location(self, file):
-        return os.path.dirname(os.path.realpath(file))
+def get_file_time():
+    date = datetime.datetime.now()
+    time = date.strftime("%x_%X")
+    time = time.replace(':', ';')
+    time = time.replace('/', ',')
+    return time

@@ -1,7 +1,8 @@
 from Interface.InterfaceForStudent import L515_basic_interface
 
 
-comera = L515_basic_interface()
-comera.startStream()
-comera.liveVideo()
-comera.stopStream()
+camera = L515_basic_interface()
+camera.startStream()
+# camera.liveVideo()
+camera.savePicture()
+camera.stopStream()
