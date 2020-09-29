@@ -1,3 +1,19 @@
+"""
+this small library was build in order to help student interface with L515 depth camera, for deep learning purposes.
+### it could: ###
+1. take a frame and return the color and depth images as numpy matrices:
+    # in addition: #
+    * it can take a frame and save them as uncompress PNG image
+    * and open the PNG images to numpy matrices
+2. film a video with the camera, and save them either by using:
+    * .avi file (will compress the images)
+    * folder full with PNG images (uncompress)
+
+see "L515_basic_interface()" class for more details:
+"""
+
+# TODO: make a readme file for github, create dir if dir is not there
+
 import pyrealsense2 as rs
 import numpy as np
 import cv2
@@ -5,16 +21,21 @@ import keyboard
 import os
 import datetime
 
-#TODO: make code more readable
-
-
-# default set to be max size of image
-DEPTH_SIZE_DEFAULT = [640, 480]
-COLOR_SIZE_DEFAULT = [1280, 720]
+# default parameters, it set to be the max size of an image
+DEPTH_SIZE_DEFAULT = (640, 480)
+COLOR_SIZE_DEFAULT = (1280, 720)
 LASER_POWER_DEFAULT = 80.0
 RECEIVER_GAIN_DEFAULT = 9.0
 FPS = 30
 
+'''
+this class use to convert numpy images into PNG file and vice versa.
+make use:
+    * name is a legal name for a file
+    * image is a [x,y,3]-RGB shape matrix
+    * dir is the full location of where you want to work on
+        - use "self.main_directory" as root, and add path to the working location
+'''
 class PNG_converter():
     def __init__(self):
         self.main_directory = os.getcwd()
@@ -22,6 +43,11 @@ class PNG_converter():
         self.video_dir = '\\output\\videos'
         self.default_dir = '\\output\\default'
 
+    ''' function to save an image, will not compress the data
+            * image - numpy matrix shape as RGB image
+            * name - legal name for the PNG file (no need to add .png at the end)
+            * dir - where you want to save the image     
+     '''
     def imsave(self, image, name, dir = None):
         if dir is None:
             path_dir = self.default_dir
@@ -37,17 +63,27 @@ class PNG_converter():
 
         os.chdir(self.main_directory) # change beck to main dir
 
+    ''' function to load PNG image as numpy matrix
+            * path - where the image is saved
+            * name - full name including .png at the end  
+    '''
     def imload(self, path, name):
         os.chdir(path)  # change dir to where we want to save the image
         image = cv2.imread(name)
-        os.chdir(self.main_directory)  # change beck to main dir
+        os.chdir(self.main_directory)  # change beck to root dir
         return image
 
-    def get_file_location(self, file):
-        return os.path.dirname(os.path.realpath(file))
 
-
-''' camera use 30 FPS'''
+''' this is the interface class with the camera
+    * class should be called without any parameters. use the parameters only if you want to change the default once
+    * the class give you control over the laser_power and receiver_gain, there are the must important changes you could
+      do to the camera inorder to work with it from close of from afar. (read more at the README file)
+      ### initialize: ###
+        1. "startStream()" should be called first to connect to the camera
+        2. you can use all the function to take images and videos
+        3. "stopStream()" should be call after you finish working with the camera, to close the interface with it
+    
+'''
 class L515_basic_interface():
     def __init__(self, image_size_depth = DEPTH_SIZE_DEFAULT, image_size_color = COLOR_SIZE_DEFAULT,
                  laser_power = LASER_POWER_DEFAULT, receiver_gain = RECEIVER_GAIN_DEFAULT):
@@ -68,6 +104,9 @@ class L515_basic_interface():
         self.main_directory = os.getcwd()
         self.video_dir = '\\output\\videos'
 
+    ''' use to connect to the camera
+        will return "True" if he succeeded, else "False"
+    '''
     def startStream(self):
         try:
             pipeline_profile = self.pipeline.start(self.config)
@@ -86,32 +125,51 @@ class L515_basic_interface():
             success = False
         return success
 
+    ''' close stream, use it when you finish with the camera '''
     def stopStream(self):
         self.pipeline.stop()
         print("close stream")
 
+    ''' this function will take a single frame of both color and depth.
+            * you can input a frame of your own from the camera, by default it will take a frame on it own  
+        it will return them as numpy matrices
+            * color_image - is an 8bit-RGB matrix
+            * depth_image - is an 16bit-grayscale matrix
+            # if fail, function will return a signal "None"
+    '''
     def takePicture(self, frame = None):
         # if there is no input frame
         if not frame:
             try:
                 frames = self.pipeline.wait_for_frames()
             except:
-                return None
+                return None # over time, fail to capture a frame
         else:
             frames = frame
 
         # get color and depth
-        depth_frame = frames.get_depth_frame()
-        color_frame = frames.get_color_frame()
-        if not depth_frame or not color_frame: # if frame is empty
-            return None
+        try:
+            depth_frame = frames.get_depth_frame()
+            color_frame = frames.get_color_frame()
+            if not depth_frame or not color_frame: # if frame is empty
+                return None
+        except:
+            return None # fail to load from the frame
 
         # Convert images to numpy arrays
         depth_image = np.asanyarray(depth_frame.get_data())
         color_image = np.asanyarray(color_frame.get_data())
         return color_image, depth_image
 
-
+    ''' this function will save a single frame of both color and depth as PNG file.
+            * you can input a color/depth numpy matrices of your own, by default it will capture a frame on it own  
+        PNG file are 8bit-RBG images, and as you know:
+            * color_image - is an 8bit-RGB matrix
+            * depth_image - is an 16bit-grayscale matrix
+            so we have a problem saving the depth images. in order to counter it we will split the data to RG when
+            we save the depth_image. just remember to load and merge the data afterwards. see help fanction at the end
+        all data will be save at the output folder, under images
+    '''
     def savePicture(self, color_np=None, depth_np=None):
         if color_np is None or depth_np is None:
             color, depth = self.takePicture()
@@ -131,8 +189,11 @@ class L515_basic_interface():
         converter.imsave(color, color_file_name, "".join((converter.image_dir, "\\color")))
         converter.imsave(depth_image, depth_file_name, "".join((converter.image_dir, "\\depth")))
 
-
-    # will return list of lists, that contains the videos in numpy matrixs.
+    ''' this function will let you record a .avi file
+        press 'R' in order to start and stop recording.
+        press 'Esc' to exit the function.
+        all data will be save at the output folder, under videos
+    '''
     def liveVideo(self):
         print("- press Esc to end Stream -")
         print("- press R to start and stop the record -")
@@ -202,6 +263,12 @@ class L515_basic_interface():
                 print(" videos were saved ")
             os.chdir(self.main_directory)  # change beck to main dir
 
+    ''' this function will let you record a video, and will save if as pictures.
+            press 'R' in order to start and stop recording.
+            press 'P' in order to save a single frame.
+            press 'Esc' to exit the function.
+            all data will be save at the output folder, under videos in a file with date
+    '''
     def livePicture(self):
         print("- press Esc to end Stream -")
         print("- press R to start and stop the record -")
@@ -284,7 +351,9 @@ class L515_basic_interface():
             if is_recording:
                 print(" stop recording ")
 
-
+    ''' you can use this function inorder to set the "laser_power" and "receiver_gain" params
+        make sure all the params are flute type. and in the range of the camera
+    '''
     def changeParam(self, set_laser, set_receiver):
         try:
             depth_sensor = self.depth_sensor
@@ -304,7 +373,9 @@ class L515_basic_interface():
         except:
             print("--- invalid params ---")
 
-# return the date for file name
+""" from here we have same help fanciton, the code is useing """
+
+# return a date as a legal name for file name
 def get_file_time():
     date = datetime.datetime.now()
     time = date.strftime("%x_%X")
@@ -312,8 +383,10 @@ def get_file_time():
     time = time.replace('/', ',')
     return time
 
-# input, a 16-bit 2 dimension matrix
-# output, RGB-image at the size of the martix, 16 bits was splite into the first 2 color channels
+# input, a 16-bit-grayscale image
+# output, 8bit-RGB-image at the size of the matrix
+#   the 16 bits was split into the first 2 color channels of the image
+#   the R channel is the high 8-bit value of the 16-bit, and G channel are the lower once
 def bit_16_into_two_8(matrix_16):
     high = (matrix_16 >> 8) & 0xff
     high = np.array(high, dtype=np.uint8)
@@ -325,7 +398,7 @@ def bit_16_into_two_8(matrix_16):
 
     return np.dstack((high, low, zeros))
 
-# marge the high and low 8 bit of the image and return 16 grayscale image
+# marge a 8bit-RGB-image into 16 grayscale image, using the R channel as the high value, and G as the low
 def bit_two_8_into_16(image):
     high = image[:,:,0]
     high = np.array(high, dtype=np.int16)
