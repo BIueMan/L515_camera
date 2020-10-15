@@ -12,7 +12,6 @@ this small library was build in order to help student interface with L515 depth 
 see "L515_basic_interface()" class for more details:
 """
 
-# TODO: make a readme file for github, create dir if dir is not there
 from Interface.HelpFunction import *
 import pyrealsense2 as rs
 import numpy as np
