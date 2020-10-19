@@ -1,7 +1,7 @@
 # L515_camera
-In sort, this code is a interface with the L515 Camera, meant to be use by students.
-The interface give you a basic control over the setings that L515 could be config.
-After configuration, you could take picters and videos with the camera. and save them as either PNG images or video format, or keep them as numpy matrices.
+In sort, this code is a interface with the L515 Camera, meant to be use by students. 
+The interface give you a basic control over the setings that L515 could be config. 
+After configuration, you could take picters and videos with the camera. and save them as either PNG images or video format, or keep them as numpy matrices. 
 if you are a student, feel free to use my code :)
 
 # HOW TO START:
@@ -54,11 +54,11 @@ if you are a student, feel free to use my code :)
 
 
 # LINKS:
-SDK - https://github.com/IntelRealSense/librealsense/releases/tag/v2.36.0
-python - https://github.com/IntelRealSense/librealsense/tree/development/wrappers/python
-optimizing use - https://www.intelrealsense.com/optimizing-the-lidar-camera-l515-range/
+* SDK - https://github.com/IntelRealSense/librealsense/releases/tag/v2.36.0
+* python - https://github.com/IntelRealSense/librealsense/tree/development/wrappers/python
+* optimizing use - https://www.intelrealsense.com/optimizing-the-lidar-camera-l515-range/
 
 documentation:
-the official document of intel is from the semple code, but there is non-official document.
-private_non_official_document - https://intelrealsense.github.io/librealsense/python_docs/_generated/pyrealsense2.html
-python_semple_code - https://github.com/IntelRealSense/librealsense/tree/development/wrappers/python/examples
+* the official document of intel is from the semple code, but there is non-official document.
+* private_non_official_document - https://intelrealsense.github.io/librealsense/python_docs/_generated/pyrealsense2.html
+* python_semple_code - https://github.com/IntelRealSense/librealsense/tree/development/wrappers/python/examples
