@@ -27,16 +27,16 @@ if you are a student, feel free to use my code :)
 6) for more see the function that was deffinde in the interface
 
 # NOTES:
-  how the camera works:
-    * the camera shots frames all the time. when you ask for one it will give you the last frame that it took.
-    * from a fream you could extract matrices of: color-8bit image, grayscle-16bit image. one for the RGB camera, and the second for the depth sensor.
-    * the code works with these matrices
-  saved images:
-    * PNG is a 3 channel 8-bit format and could easly save a color image. but the grayscle image a 1 channel 16-bit, and cant be save on one channel of a PNG format.
+*how the camera works:
+	* the camera shots frames all the time. when you ask for one it will give you the last frame that it took.
+	* from a fream you could extract matrices of: color-8bit image, grayscle-16bit image. one for the RGB camera, and the second for the depth sensor.
+	* the code works with these matrices
+* saved images:
+	* PNG is a 3 channel 8-bit format and could easly save a color image. but the grayscle image a 1 channel 16-bit, and cant be save on one channel of a PNG format.
       so when the depth image is saved, it split the data betwen the first 2 channels. and when load a grascle image, it will morge the data beck to 16-bit.
       so dont get confused if a depth PNG image dont make sense.
-  video:
-    * as for now, i did't found a video format that does't compres the data. so there are 2 ways to shot a video
+* video:
+	as for now, i did't found a video format that does't compres the data. so there are 2 ways to shot a video
     1) normal with format with compression.
     2) it will shot and save a group of pictures, every image come from the next frame.
     
