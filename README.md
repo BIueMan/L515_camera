@@ -7,14 +7,15 @@ if you are a student, feel free to use my code :)
 # HOW TO START:
 1) make sure the comera conected to USB3 port
 2) at first, try to use the "Intel.RealSense.Viewer16" file to see what the comera can do. (downloaded from the SDK link)
-3) next in python, see the code for "Installation" of the camera driver and the libraries the code used. the camera driver only sopurt python 3.7 or lower!
-4) when you call the interface, you first start the steam that conect to the camera, then you can use it to take picters and videro.
+3) next in python, see the installation code (import_test) for the camera driver and the libraries the code used. the camera driver only sopurt python 3.7 or lower!
+4) import the "L515_basic_interface" class from "Interface/InterfaceForStudent"
+5) when you call the interface, you first start the steam that conect to the camera, then you can use it to take picters and videro.
    code code to start will be:
         camera = L515_basic_interface()  # call the interface
         camera.startStream()
         camera.liveVideo()
         camera.stopStream()
-5) if you want to know how the SDK of the camera work, there are same sample code from intel, and same i write. you may skip this part if you only interested is the interface:
+6) if you want to know how the SDK of the camera work, there are same sample code from intel, and same i write. you may skip this part if you only interested is the interface:
    SAMPLE code:
     * try to learn from the playGound code in the order I write them
       1) GetRawDepth - extract the depth image from a frame
@@ -24,7 +25,7 @@ if you are a student, feel free to use my code :)
       5) LiveAlign - Align the RGB and depth images useing SDK build in fanction
       6) GetSetOption - the link of "optimizing use" tell as that by changing (laser power) and (receiver gain),
          we can change the range of the camera depth to work with near or far objects.
-6) for more see the function that was deffinde in the interface
+7) for more see the function that was deffinde in the interface
 
 # NOTES:
 * how the camera works:
