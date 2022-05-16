@@ -4,6 +4,8 @@ The interface give you a basic control over the setings that L515 could be confi
 After configuration, you could take picters and videos with the camera. and save them as either PNG images or video format, or keep them as numpy matrices. 
 if you are a student, feel free to use my code :)
 
+![alt text](https://github.com/BIueMan/L515_camera/blob/master/Images/51Spe%2BHSN2S._AC_SL1200_.jpg)
+
 # HOW TO START:
 1) make sure the comera conected to USB3 port
 2) at first, try to use the "Intel.RealSense.Viewer16" file to see what the comera can do. (downloaded from the SDK link)
